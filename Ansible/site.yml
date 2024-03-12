@@ -1,0 +1,27 @@
+- name: DSW install
+  hosts: dswservers
+  become: true
+  vars_files:
+    - vars/config-system.yml
+    - vars/config-dsw.yml
+
+  roles:
+    # Config local system role (AlmaLinux)
+    # in-role-tags: hostname, timezone, packages, users, groups, and TODO many others 
+    - { role: system, tags: [system] }
+    
+    # DSW App
+    # in-role-tags: minio, postgres, dsw-server, dsw-mailer, dsw-client, dsw-docworker 
+    # - setup
+    - { role: dsw, tags: [dsw] }
+    # control
+    - { role: dsw, tags: [never, backup] }
+    - { role: dsw, tags: [never, restart] }
+
+    # TODO
+    # # Auth & SSL
+    # - { role: keycloak, tags: [ keycloak ] } # or any OpenId provider
+    # - { role: traefik,  tags: [ traefik ] } # or apache/nginx as reverse proxy
+    # # monitoring
+    # - { role: prom-node-exporter, tags: [ monitoring ] }
+ 

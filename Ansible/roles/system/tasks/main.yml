@@ -1,1 +1,39 @@
 # Local system tasks
+
+- name: "Set hostname {{ system_hostname }}"
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+  when: system_hostname is defined
+  tags:
+    - hostname
+
+- name: "Set timezone {{ system_timezone }}"
+  community.general.timezone:
+    name: "{{ system_timezone }}"
+  when: system_timezone is defined
+  tags:
+    - timezone
+
+- include_tasks: packages.yml
+  when: system_packages is defined or system_no_pacakges is defined
+  tags:
+    - packages
+
+- include_tasks: users_groups.yml
+  when: system_users is defined or system_groups is defined
+  tags:
+    - users
+    - groups
+
+# TODO
+# - name: filesystem
+# - name: containers
+# - name: network
+# - name: ntp
+# - name: sshd
+# - name: selinux
+# - name: update
+# - name: docker
+# - name: postfix
+# - name: logging
+# - name: fail2ban

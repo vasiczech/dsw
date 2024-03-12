@@ -1,1 +1,15 @@
 # DSW tasks
+
+- include_tasks: init.yml
+  tags:
+    - init
+
+- include_tasks: minio.yml
+  when: dsw_minio is defined
+  tags:
+    - minio
+
+- include_tasks: postgres.yml
+  when: dsw_postgres is defined
+  tags:
+    - postgres

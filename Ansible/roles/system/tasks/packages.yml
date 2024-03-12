@@ -1,0 +1,14 @@
+- name: Uninstall packages
+  ansible.builtin.yum:
+    name: "{{ system_no_packages }}"
+    state: absent
+  when: system_packages is defined
+  tags:
+    - packages
+
+- name: Install packages
+  ansible.builtin.yum:
+    name: "{{ system_packages }}"
+  when: system_packages is defined
+  tags:
+    - packages
