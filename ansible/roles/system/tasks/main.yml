@@ -14,12 +14,12 @@
   tags:
     - timezone
 
-- include_tasks: packages.yml
+- ansible.builtin.include_tasks: packages.yml
   when: system_packages is defined or system_no_pacakges is defined
   tags:
     - packages
 
-- include_tasks: users_groups.yml
+- ansible.builtin.include_tasks: users_groups.yml
   when: system_users is defined or system_groups is defined
   tags:
     - users

@@ -1,42 +1,48 @@
-- name: Stop Minio Container
-  containers.podman.podman_container:
-    name: "{{ dsw_minio_container_name }}"
-    state: stoped
-  when: dsw_minio_container_name is defined
-  tags: 
-    - never
-    - stop
-    - restart
-    - destroy
-    - minio_stop
-    - minio_destroy
-    - minio_restart
+# - set_facts:
+#     container_network_name: "{{ dsw_container_network_name }}"
 
-- name: Destroy Minio Container
-  containers.podman.podman_container:
-    name: "{{ dsw_minio_container_name }}"
-    state: absent
-  when: dsw_minio_container_name is defined
-  tags:
-    - never
-    - destroy
-    - minio_destroy
+# - block:
+#   - set_facts:
+#       container_name: "{{ dsw_minio_container_name }}"
+#       container_image: "{{ dsw_minio_contaier_image }}"
+#       container_manage_tag_prefix: minio_
+#   - include_tasks: containers.manage.yml
+#   tags:
+    - minio    
+
+# - name: Stop Minio Container
+#   containers.podman.podman_container:
+#     name: "{{ dsw_minio_container_name }}"
+#     state: stoped
+#   when: dsw_minio_container_name is defined
+#   tags: "{{ container_stop_tags }}"
+
+# - name: Destroy Minio Container
+#   containers.podman.podman_container:
+#     name: "{{ dsw_minio_container_name }}"
+#     state: absent
+#   when: 
+#     - dsw_minio_container_name is defined
+#   tags:
+#     - never
+#     - destroy
+#     - minio_destroy
   
-- name: Create Minio Container
-  containers.podman.podman_container:
-    name: "{{ dsw_minio_container_name }}"
-    image: "{{ dsw_minio_container_image }}"
-    ports: "{{ dsw_minio_container_ports }}"
-    env:
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    when:
-    tags:
-      - never
-      - stop
-      - restart
-      - destroy
-      - minio_stop
-      - minio_destroy
-      - minio_restart
+# - name: Create Minio Container
+#   containers.podman.podman_container:
+#     name: "{{ dsw_minio_container_name }}"
+#     image: "{{ dsw_minio_container_image }}"
+#     ports: "{{ dsw_minio_container_ports }}"
+#     env:
+#     volumes:
+#       - db-data:/var/lib/postgresql/data
+#     when:
+#     tags:
+#       - never
+#       - stop
+#       - restart
+#       - destroy
+#       - minio_stop
+#       - minio_destroy
+#       - minio_restart
    

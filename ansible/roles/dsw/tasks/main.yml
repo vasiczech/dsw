@@ -1,15 +1,18 @@
-# DSW tasks
+- set_fact:
+    dsw_action: create
+  when: dsw_action is not defined
 
-- include_tasks: init.yml
-  tags:
-    - init
+- set_fact:
+    all_components: "{{ ansible_run_tags| intersect(['minio', 'postgres', 'dsw_server']) == [] }}"
 
-- include_tasks: minio.yml
-  when: dsw_minio is defined
-  tags:
-    - minio
 
-- include_tasks: postgres.yml
-  when: dsw_postgres is defined
-  tags:
-    - postgres
+- block:
+  - debug: msg="{{ dsw_action }} minio"
+    when: "'minio' in ansible_run_tags or all_components"
+    # tags:
+    #   - minio
+
+  - debug: msg="{{ dsw_action }} postgres"
+    when: "'postg' in ansible_run_tags or all_components"
+    # tags:
+    #   - postgres

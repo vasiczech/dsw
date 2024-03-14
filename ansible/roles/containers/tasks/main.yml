@@ -1,0 +1,53 @@
+- block:
+    - ansible.builtin.include_tasks: network.yml
+      when: >
+        c8s_network is defined or
+        c8s_networks is defined or
+        c8s_project.networks is defined
+
+    - ansible.builtin.include_tasks: container-mgmt.yml
+      when:
+        - c8s_network_name is defined
+        - c8s_network_state is defined or c8s_state is defined or state is defined 
+  tags:
+    - network
+
+- block:
+  - ansible.builtin.include_tasks: container.yml
+    when: >
+      c8s_container is defined or
+      c8s_containers is defined or
+      c8s_project.containers is defined
+
+  - ansible.builtin.include_tasks: container-mgmt.yml
+    when:
+      - c8s_container_name is defined
+      - c8s_container_state is defined or c8s_state is defined or state is defined 
+  tags:
+    - container
+
+
+# - name: "Ensure that container '{{ c8s_container_name }}' is '{{ c8s_container_state }}'"
+#   containers.podman.podman_container:
+#     name: "{{ c8s_container_name }}"
+#     state: "{{ c8s_container_state }}"
+#   when: 
+#     - c8s_container_name is defined
+#     - c8s_container_state is defined
+#     - c8s_container_state in ['stopped', 'absent']
+
+# - name: "Ensure that container '{{ c8s_container_name }}' is '{{ c8s_container_state }}'"
+#   containers.podman.podman_container:
+#     name: "{{ c8s_container_name }}"
+#     image: "{{ c8s_container_image }}"
+#     state: "{{ c8s_container_state }}"
+#     restart_policy: "{{ c8s_container_restart_policy | default('always') }}"
+#     command: "{{ c8s_container_command | default(omit) }}"
+#     volume: "{{ c8s_container_volumes | default(omit) }}"
+#     network: "{{ c8s_container_networks | default(omit) }}"
+#     ports: "{{ c8s_container_ports | default(omit) }}"
+#     env: "{{ c8s_container_environment | default(omit) }}"
+#   when:
+#     - c8s_container_name is defined
+#     - c8s_container_image is defined
+#     - c8s_container_state in ['present', 'created', 'started']

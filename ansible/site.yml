@@ -7,16 +7,18 @@
 
   roles:
     # Config local system role (AlmaLinux)
-    # in-role-tags: hostname, timezone, packages, users, groups, and TODO many others 
+    # in-role-tags: hostname, timezone, packages, users, groups, and TODO many others
     - { role: system, tags: [system] }
-    
+
     # DSW App
-    # in-role-tags: minio, postgres, dsw-server, dsw-mailer, dsw-client, dsw-docworker 
+    # in-role-tags: minio, postgres, dsw-server, dsw-mailer, dsw-client, dsw-docworker
     # - setup
     - { role: dsw, tags: [dsw] }
-    # control
-    - { role: dsw, tags: [never, backup] }
-    - { role: dsw, tags: [never, restart] }
+    # - control
+    - { role: dsw, tags: [never, backup], dsw_action: backup }
+    - { role: dsw, tags: [never, stop, restart, destroy], dsw_action: stop }
+    - { role: dsw, tags: [never, start, restart], dsw_action: start }
+    - { role: dsw, tags: [never, destroy], dsw_action: destroy }
 
     # TODO
     # # Auth & SSL
@@ -24,4 +26,3 @@
     # - { role: traefik,  tags: [ traefik ] } # or apache/nginx as reverse proxy
     # # monitoring
     # - { role: prom-node-exporter, tags: [ monitoring ] }
- 
