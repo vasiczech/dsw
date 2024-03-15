@@ -70,14 +70,14 @@
 - name: Update DSW backup-minio script
   ansible.builtin.template:
     dest: "{{ dsw_conf_dir }}/backup-minio.sh"
-    src:  "dsw-backup-minio.sh.j2"
+    src: "dsw-backup-minio.sh.j2"
     owner: "root"
     group: "root"
     mode: "u=rwx,go="
 
 # NOTE presunout do system?
 - name: Let Cron to run DSW backup-minio script hourly
-  cron:
+  ansible.builtin.cron:
     name: dws_backup_minio
     state: present
     special_time: hourly
@@ -93,14 +93,14 @@
 
 - name: Update DSW backup-postgres script
   ansible.builtin.template:
-    dest:  "{{ dsw_conf_dir }}/backup-postgres.sh"
-    src:   "dsw-backup-postgres.sh.j2"
+    dest: "{{ dsw_conf_dir }}/backup-postgres.sh"
+    src: "dsw-backup-postgres.sh.j2"
     owner: "root"
     group: "root"
     mode: "u=rwx,go="
 
 - name: Let Cron to run DSW backup-postgres script hourly
-  cron:
+  ansible.builtin.cron:
     name: dws_backup_postgres
     state: present
     special_time: hourly
