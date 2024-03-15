@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export ts="$(date +'{{ dsw_backup_ts_format }}')"
+export backup_dir_outside="{{ dsw_postgres_backup_dir_outside }}/${ts}"
+export backup_dir_inside="{{ dsw_postgres_backup_dir_inside }}/${ts}"
+
+if [ ! -d "${backup_dir_outside}" ]; then
+    mkdir "${backup_dir_outside}"
+fi
+chmod 'ugo=rwX' "${backup_dir_outside}"
+
+# TODO change docker-compose
+cd {{ dsw_conf_dir }} \
+    && docker-compose exec -T -u postgres postgres "/usr/bin/pg_dumpall" "-f" "${backup_dir_inside}/dsw-postgres-full-dump.sql"

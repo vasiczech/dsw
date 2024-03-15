@@ -35,10 +35,11 @@ dsw_minio_url: http://minio:9000
 
 # config dsw-general
 dsw_conf_dir: /etc/dsw
-dsw_client_url: "https://{{ hostname }}:443"
+dsw_client_url: "https://{{ ansible_hostname }}:443"
 dsw_general_secret: xxx # TODO ! vault |
 dsw_general_serviceToken: xxx # TODO  !vault |
 dsw_integration_apiKey: xxx # TODO !vault | 
+dsw_backup_ts_format: '%u-%A-%H'
 
 # config dsw-mailer
 dsw_mail_enabled: true # legacy (if false, no emails are sent - dry-run)
@@ -55,82 +56,3 @@ dsw_mail_rateLimit:
   window: 60 # time windows in seconds, 0=disabled rate limit
   count: 30 # max number of messages within the window
 dsw_mail_timeout: 30
-
-# dsw container app in "composer" format
-dsw_container_app:
-  networks:
-    dsw_net:
-
-  volumes:
-    s3_data:
-    db_data:
-
-  containers:
-    dsw_server:
-      image: "{{ dsw_server_image }}"
-      ports: "{{ dsw_server_ports | default(omit) }}"
-      depends_on:
-        - postgres
-        - minio
-      volumes:
-        - "{dsw_conf_dir}}/dsw.yml:/application/engine-wizard/config/application.yml:ro:z"
-        - "{dsw_conf_dir}}/integration.yml:/application/engine-wizard/config/integration.yml:ro:z"
-
-    dsw_client:
-      image: "{{ dsw_client_image }}"
-      ports: "{{ dsw_client_ports | default(omit) }}"
-      environment:
-        API_URL: https://{{ hostname }}:3443
-      volumes:
-        - "{{ dsw_conf_dir }}/dsw-client/src/scss/customizations/_variables.scss:/src/scss/customizations/_variables.scss:ro:Z"
-        - "{{ dsw_conf_dir }}/dsw-client/usr/share/nginx/html/favicon.ico:/usr/share/nginx/html/favicon.ico:ro:Z"
-
-    dsw_docworker:
-      image: "{{ dsw_docworker_image }}"
-      depends_on:
-        - postgres
-        - minio
-        - dsw_server
-      volumes:
-        - "{{ dsw_conf_dir }}/dsw.yml:/app/config.yml:ro:z"
-
-    dsw_mailer:
-      image: "{{ dsw_mailer_image }}"
-      depends_on:
-        - postgres
-        - dsw_server
-      volumes:
-        - "{{ dsw_config_dir }}/dsw.yml:/app/config.yml:ro:z"
-        - "{{ dsw_config_dir }}/dsw-mailer/templates:/app/templates:ro:Z"
-
-    postgres:
-      image: "{{ dsw_postgres_image }}"
-      environment:
-        POSTGRES_DB: "{{ dsw_postgres_db }}"
-        POSTGRES_USER: "{{ dsw_postgres_user }}"
-        POSTGRES_PASSWORD: "{{ dsw_postgres_password }}"
-      ports: "{{ dsw_postgres_ports}}"
-      volumes:
-        - db_data:/var/lib/postgresql/data
-        - "{{ dsw_postgres_backup_dir_outside }}:{{ dsw_postgres_backup_dir_inside }}"
-
-    minio:
-      image: "{{ dsw_minio_image }}"
-      command: [server, /data, --console-address, ":9001"]
-      ports: "{{ dsw_minio_ports | default(omit) }}"
-      environment:
-        MINIO_ROOT_USER: "{{ dsw_minio_user }}"
-        MINIO_ROOT_PASSWORD: "{{ dsw_minio_password }}"
-      volumes:
-        - s3_data:/data
-
-# create bucket - only for init
-dsw_miniomc_container:
-  image: "{{ dsw_repo }}/minio/mc"
-  command: [] # TODO
-  restart_policy: none
-  detach: false
-  environment:
-    MINIO_ROOT_USER: "{{ dsw_minio_user }}"
-    MINIO_ROOT_PASSWORD: "{{ dsw_minio_password }}"
-    MINIO_BUCKET: "{{ dsw_minio_password }}"

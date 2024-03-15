@@ -1,21 +1,24 @@
-- name: Configure DSW Application
-  ansible.builtin.include_tasks: config.yml
+- block:
+    - name: Configure DSW Application
+      ansible.builtin.include_tasks: config.yml
   tags:
     - config
-  notify:
-    - containers.restart
+  # notify:
+  #   - containers.restart
 
-- name: Start DSW Appcication
-  ansible.builtin.include_role: containers
-  vars:
-    containers_applicatinon: "{{ dsw_container_app }}"
-    containers_state: started
-  tags:
-    - containers
+# - block:
+#     - name: Start DSW Appcication
+#       ansible.builtin.include_role:
+#         name: containers
+#         vars:
+#           containers_applicatinon: "{{ dsw_container_app }}"
+#           containers_state: started
+#   tags:
+#     - containers
 
-- name: Init DSW Application
-  ansible.builtin.include_tasks: init.yml
-  tags:
-    - init
-  notify:
-    - containers.restart
+# - name: Init DSW Application
+#   ansible.builtin.include_tasks: init.yml
+#   tags:
+#     - init
+#   notify:
+#     - containers.restart

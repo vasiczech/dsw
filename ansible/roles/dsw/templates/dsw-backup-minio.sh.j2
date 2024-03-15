@@ -1,0 +1,16 @@
+#!/bin/bash
+
+MINIO_NET="{{ dsw_minio_net }}"
+MINIO_BUCKET="{{ dsw_minio_bucket }}"
+MINIO_USER="{{ dsw_minio_user }}"
+MINIO_PASS="{{ dsw_minio_password }}"
+
+docker run --rm --net $MINIO_NET \
+  -e MINIO_BUCKET=$MINIO_BUCKET \
+  -e MINIO_USER=$MINIO_USER \
+  -e MINIO_PASS=$MINIO_PASS \
+  -v "{{ dsw_minio_backup_dir_outside }}/$(date +'{{ dsw_backup_ts_format }}')":"{{ dsw_minio_backup_dir_inside }}" \
+  --entrypoint sh minio/mc -c "\
+  mc config host add dswminio http://minio:9000 \$MINIO_USER \$MINIO_PASS && \
+  mc mirror --overwrite --remove --preserve dswminio/\$MINIO_BUCKET {{ dsw_minio_backup_dir_inside }}
+"

@@ -1,37 +1,44 @@
+- name: "Have DSW config dir '{{ dsw_conf_dir }}'"
+  ansible.builtin.file:
+    path: "{{ dsw_conf_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,go="
 
 - name: Update DSW app config file
-  template:
-    dest:  "{{ dsw_conf_dir }}/dsw.yml"
-    src:   "dsw.yml.j2"
+  ansible.builtin.template:
+    dest: "{{ dsw_conf_dir }}/dsw.yml"
+    src: "dsw.yml.j2"
     owner: "root"
     group: "root"
     mode: "u=rw,go="
 
 - name: Update DSW integration config file
-  template:
-    dest:  "{{ dsw_conf_dir }}/integration.yml"
-    src:   "dsw-integration.yml.j2"
+  ansible.builtin.template:
+    dest: "{{ dsw_conf_dir }}/integration.yml"
+    src: "dsw-integration.yml.j2"
     owner: "root"
     group: "root"
     mode: "u=rw,go="
 
 - name: Configure DSW client
-  copy:
-    src:   "files/dsw-client/"
+  ansible.builtin.copy:
+    src: "files/dsw-client/"
     dest: "{{ dsw_conf_dir }}/dsw-client/"
     owner: "root"
     group: "root"
     mode: "u=rwX,go=rX"
-    force: yes
+    force: true
 
 - name: Configure DSW mailer
-  copy:
-    src:   "files/dsw-mailer/"
+  ansible.builtin.copy:
+    src: "files/dsw-mailer/"
     dest: "{{ dsw_conf_dir }}/dsw-mailer/"
     owner: "root"
     group: "root"
     mode: "u=rwX,go=rX"
-    force: yes
+    force: true
 
 # TODO
   # - name: Update DSW create-bucket script
@@ -53,7 +60,7 @@
   #     - '"Your previous request to create the named bucket succeeded and you already own it." not in command_result.stderr'
 
 - name: "Have MinIO outside-container backup dir '{{ dsw_minio_backup_dir_outside }}'"
-  file:
+  ansible.builtin.file:
     path: '{{ dsw_minio_backup_dir_outside }}'
     state: directory
     owner: "root"
@@ -61,9 +68,9 @@
     mode: "u=rwx,go="
 
 - name: Update DSW backup-minio script
-  template:
-    dest:  "{{ dsw_conf_dir }}/backup-minio.sh"
-    src:   "dsw-backup-minio.sh.j2"
+  ansible.builtin.template:
+    dest: "{{ dsw_conf_dir }}/backup-minio.sh"
+    src:  "dsw-backup-minio.sh.j2"
     owner: "root"
     group: "root"
     mode: "u=rwx,go="
@@ -77,15 +84,15 @@
     job: "{{ dsw_conf_dir }}/backup-minio.sh >/dev/null"
 
 - name: Have Postgres outside-container backup dir '{{ dsw_postgres_backup_dir_outside }}'
-  file:
-    path: '{{ dsw.postgres_backup_dir_outside }}'
+  ansible.builtin.file:
+    path: '{{ dsw_postgres_backup_dir_outside }}'
     state: directory
     owner: "root"
     group: "root"
     mode: "uo=rwx,g="
 
 - name: Update DSW backup-postgres script
-  template:
+  ansible.builtin.template:
     dest:  "{{ dsw_conf_dir }}/backup-postgres.sh"
     src:   "dsw-backup-postgres.sh.j2"
     owner: "root"
