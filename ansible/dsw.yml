@@ -1,13 +1,16 @@
 - name: DSW
+  hosts: dswservers
   vars:
     project:
       name: DSW
-      description: 
-      
+      description:
+      server:
+        cpu: 4
+        ram_gb: 8 
+  vars_files:
+    - vars/config-dsw.yml
 
   roles:
-    - { role: mendelu.oit.project }
-    - { role: dsw,                    state: configured }
-    - { role: mendelu.oit.containers, state: created }
-    - { role: dsw,                    state: initialized }
-    - { role: mendelu.oit.containers, state: started }
+    # - { role: mendelu.oit.project }
+    - { role: dsw }
+ 

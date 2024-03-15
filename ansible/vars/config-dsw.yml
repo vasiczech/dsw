@@ -21,18 +21,40 @@ dsw_postgres_ports:
 dsw_postgres_db: engine-wizard
 dsw_postgres_user: postgres
 dsw_postgres_password: postgres
-dsw_postgres_backup_dir_inside: "/backup-postgres"
-dsw_postgres_backup_dir_outside: "/root/backup-postgres"
+dsw_postgres_backup_dir_inside: /backup-postgres
+dsw_postgres_backup_dir_outside: /root/backup-postgres
+dsw_postgres_url: postgresql://postgres:postgres@postgres:5432/engine-wizard
 
 # config minio
 dsw_minio_bucket: engine-wizard
 dsw_minio_user: minio
 dsw_minio_password: minio
-dsw_minio_backup_dir_inside: "/backup-minio"
-dsw_minio_backup_dir_outside: "/root/backup-minio"
+dsw_minio_backup_dir_inside: /backup-minio
+dsw_minio_backup_dir_outside: /root/backup-minio
+dsw_minio_url: http://minio:9000
 
-# config dsw 
+# config dsw-general
 dsw_conf_dir: /etc/dsw
+dsw_client_url: "https://{{ hostname }}:443"
+dsw_general_secret: xxx # TODO ! vault |
+dsw_general_serviceToken: xxx # TODO  !vault |
+dsw_integration_apiKey: xxx # TODO !vault | 
+
+# config dsw-mailer
+dsw_mail_enabled: true # legacy (if false, no emails are sent - dry-run)
+dsw_mail_name:  MENDELU DS Wizard
+dsw_mail_email: dsw@mendelu.cz
+dsw_mail_host: relay.mendelu.cz
+dsw_mail_port: 587
+dsw_mail_security: starttls
+dsw_mail_authEnabled: true
+dsw_mail_username: dswmailer@mendelu.cz
+dsw_mail_password: xxx # TODO !vault |
+dsw_mail_ssl: true
+dsw_mail_rateLimit:
+  window: 60 # time windows in seconds, 0=disabled rate limit
+  count: 30 # max number of messages within the window
+dsw_mail_timeout: 30
 
 # dsw container app in "composer" format
 dsw_container_app:
@@ -102,7 +124,7 @@ dsw_container_app:
       volumes:
         - s3_data:/data
 
-# create bucket - only for init!
+# create bucket - only for init
 dsw_miniomc_container:
   image: "{{ dsw_repo }}/minio/mc"
   command: [] # TODO

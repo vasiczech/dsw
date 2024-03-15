@@ -1,18 +1,21 @@
-- set_fact:
-    dsw_action: create
-  when: dsw_action is not defined
+- name: Configure DSW Application
+  ansible.builtin.include_tasks: config.yml
+  tags:
+    - config
+  notify:
+    - containers.restart
 
-- set_fact:
-    all_components: "{{ ansible_run_tags| intersect(['minio', 'postgres', 'dsw_server']) == [] }}"
+- name: Start DSW Appcication
+  ansible.builtin.include_role: containers
+  vars:
+    containers_applicatinon: "{{ dsw_container_app }}"
+    containers_state: started
+  tags:
+    - containers
 
-
-- block:
-  - debug: msg="{{ dsw_action }} minio"
-    when: "'minio' in ansible_run_tags or all_components"
-    # tags:
-    #   - minio
-
-  - debug: msg="{{ dsw_action }} postgres"
-    when: "'postg' in ansible_run_tags or all_components"
-    # tags:
-    #   - postgres
+- name: Init DSW Application
+  ansible.builtin.include_tasks: init.yml
+  tags:
+    - init
+  notify:
+    - containers.restart

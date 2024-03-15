@@ -1,0 +1,160 @@
+  - name: Configure DSW via API
+    block:
+
+    - name: Try to getting DSW API token from the local admin
+      uri:
+        url: "{{ dsw.api.url }}/tokens"
+        method: POST
+        status_code: 201
+        body_format: json
+        body:
+          email:    "{{ dsw.users.local_admin.email }}"
+          password: "{{ dsw.users.local_admin.password }}"
+      register: dsw_api_response
+      ignore_errors: yes
+      tags:
+        - dsw_users_roles
+
+    - set_fact:
+        dsw_api_token: "{{ dsw_api_response.json.token }}"
+      ignore_errors: yes
+      tags:
+        - dsw_users_roles
+
+    - name: Get DSW API token from the default user
+      uri:
+        url: "{{ dsw.api.url }}/tokens"
+        method: POST
+        status_code: 201
+        body_format: json
+        body:
+          email: 'albert.einstein@example.com'
+          password: 'password'
+      register: dsw_api_response
+      when: dsw_api_token is not defined
+      tags:
+        - dsw_users_roles
+
+    - set_fact:
+        dsw_api_token: "{{ dsw_api_response.json.token }}"
+      when: dsw_api_token is not defined
+      tags:
+        - dsw_users_roles
+
+#       - name: Got DSW API token
+#         debug:
+#           var: dsw_api_token
+
+    - name: Create DSW local admin user
+      uri:
+        url: "{{ dsw.api.url }}/users"
+        method: POST
+        status_code: 201
+        headers:
+          Authorization: "Bearer {{ dsw_api_token }}"
+        body_format: json
+        body:
+          firstName:   "{{ dsw.users.local_admin.firstName }}"
+          lastName:    "{{ dsw.users.local_admin.lastName }}"
+          email:       "{{ dsw.users.local_admin.email }}"
+          affiliation: "{{ dsw.users.local_admin.affiliation }}"
+          role:        "{{ dsw.users.local_admin.role }}"
+          password:    "{{ dsw.users.local_admin.password }}"
+      register: dsw_api_response
+      failed_when:
+        - dsw_api_response.status != 201
+        - '"error.validation.user_email_uniqueness" not in dsw_api_response.json.fieldErrors.email[0].code'
+      tags:
+        - dsw_users_roles
+
+    - name: Get local admin user UUID
+      uri:
+        url: "{{ dsw.api.url }}/users?q={{ dsw.users.local_admin.email }}"
+        method: GET
+        status_code: 200
+        headers:
+          Authorization: "Bearer {{ dsw_api_token }}"
+      register: dsw_api_response
+      tags:
+        - dsw_users_roles
+
+    - set_fact:
+        dsw_local_admin_user_uuid: "{{ dsw_api_response.json._embedded.users[0].uuid }}"
+      tags:
+        - dsw_users_roles
+
+    - name: Got DSW local admin user UUID
+      debug:
+        var: dsw_local_admin_user_uuid
+      tags:
+        - dsw_users_roles
+
+    - name: Set local admin user state
+      uri:
+        url: "{{ dsw.api.url }}/users/{{ dsw_local_admin_user_uuid }}"
+        method: PUT
+        status_code: 200
+        headers:
+          Authorization: "Bearer {{ dsw_api_token }}"
+        body_format: json
+        body:
+          active:      "{{ dsw.users.local_admin.active }}"
+          firstName:   "{{ dsw.users.local_admin.firstName }}"
+          lastName:    "{{ dsw.users.local_admin.lastName }}"
+          email:       "{{ dsw.users.local_admin.email }}"
+          affiliation: "{{ dsw.users.local_admin.affiliation }}"
+          role:        "{{ dsw.users.local_admin.role }}"
+      register: dsw_api_response
+      tags:
+        - dsw_users_roles
+
+    - name: Get DSW API token from the local admin
+      uri:
+        url: "{{ dsw.api.url }}/tokens"
+        method: POST
+        status_code: 201
+        body_format: json
+        body:
+          email:    "{{ dsw.users.local_admin.email }}"
+          password: "{{ dsw.users.local_admin.password }}"
+      register: dsw_api_response
+      tags:
+        - dsw_users_roles
+
+    - set_fact:
+        dsw_api_token: "{{ dsw_api_response.json.token }}"
+      tags:
+        - dsw_users_roles
+
+    - name: Remove default users
+      include_tasks: tasks/dsw_remove_default_users.yml
+      loop: "{{ dsw.users.default_users }}"
+      loop_control:
+        loop_var: user_item
+
+    - name: Set DSW configuration from JSON config dump
+      uri:
+        url: "{{ dsw.api.url }}/configs/app"
+        method: PUT
+        status_code: 200
+        headers:
+          Authorization: "Bearer {{ dsw_api_token }}"
+        body_format: json
+        body: "{{ lookup('file','files/dsw-server-config.json') }}"
+      register: dsw_api_response
+
+#       - name: Got DSW API response
+#         debug:
+#           var: dsw_api_response
+
+    - name: Set users roles
+      include_tasks: tasks/dsw_set_users_roles.yml
+      loop: "{{ dsw.users.roles | dict2items }}"
+      loop_control:
+        loop_var: user_item
+      tags:
+        - dsw_users_roles
+
+    tags:
+      - dsw_api_config
+

@@ -1,8 +1,0 @@
-- debug: msg="{{ ansible_run_tags }}"
-
-- debug: msg="create minio"
-  when: "'minio' in ansible_run_tags"
-
-- debug: msg="create postgers"
-  tags:
-    - postgres
