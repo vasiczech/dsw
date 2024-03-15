@@ -1,0 +1,13 @@
+- name: DSW
+  vars:
+    project:
+      name: DSW
+      description: 
+      
+
+  roles:
+    - { role: mendelu.oit.project }
+    - { role: dsw,                    state: configured }
+    - { role: mendelu.oit.containers, state: created }
+    - { role: dsw,                    state: initialized }
+    - { role: mendelu.oit.containers, state: started }

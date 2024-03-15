@@ -1,4 +1,6 @@
-- block:
+- tags:
+    - network
+  block:
     - ansible.builtin.include_tasks: network.yml
       when: >
         c8s_network is defined or
@@ -9,8 +11,7 @@
       when:
         - c8s_network_name is defined
         - c8s_network_state is defined or c8s_state is defined or state is defined 
-  tags:
-    - network
+
 
 - block:
   - ansible.builtin.include_tasks: container.yml

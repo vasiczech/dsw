@@ -1,0 +1,22 @@
+- name: Collect container name
+  ansible.builtin.set_fact:
+    _containers: >
+      {{ 
+        ( [c8s_container_name] if c8s_container is defined else []) +
+        ( c8s_container_names if c8s_container_names is defined else []) +
+        ( c8s_containers if c8s_containers is defined else [])
+      }}
+  when: _containers is not defined
+
+- name: Set container default state
+  ansible.builtin.set_fact:
+    _containers: "{{ _containers | map('combine', {'state_default': c8s_container_state) | default(c8s_state) | default(state)}) | list }}"
+
+- name: "Ensure that container is in defined state"
+  containers.podman.podman_network:
+    name: "{{ item.name }}"
+    state: "{{ item.state |  }}"
+  # become: true
+  loop: "{{ _containers }}"
+  loop_control:
+    label: "{{ item.name }} is {{ item.state }}"

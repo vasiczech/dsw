@@ -1,0 +1,114 @@
+# container images
+dsw_repo: docker.io
+dsw_server_image: "{{ dsw_repo }}/datastewardshipwizard/wizard-server:3.12.1"
+dsw_client_image: "{{ dsw_repo }}/datastewardshipwizard/wizard-client:3.12"
+dsw_docworker_image: "{{ dsw_repo }}/datastewardshipwizard/document-worker:3.12.1"
+dsw_mailer_image: "{{ dsw_repo }}/datastewardshipwizard/mailer:3.12"
+dsw_minio_image: "{{ dsw_repo }}/minio/minio:latest" # :RELEASE.2022-02-24T22-12-01Z # TODO
+
+# container expose ports - only devel environment, in production use HTTPS proxy
+dsw_client_ports:
+  -127.0.0.1:8080:80
+dsw_server_ports: 
+  - 127.0.0.1:3000:3000
+dsw_minio_ports:
+  - 127.0.0.1:9000:9000
+  - 127.0.0.1:9001:9001
+dsw_postgres_ports: 
+  - 127.0.0.1:5432:5432
+
+# config postgres
+dsw_postgres_db: engine-wizard
+dsw_postgres_user: postgres
+dsw_postgres_password: postgres
+dsw_postgres_backup_dir_inside: "/backup-postgres"
+dsw_postgres_backup_dir_outside: "/root/backup-postgres"
+
+# config minio
+dsw_minio_bucket: engine-wizard
+dsw_minio_user: minio
+dsw_minio_password: minio
+dsw_minio_backup_dir_inside: "/backup-minio"
+dsw_minio_backup_dir_outside: "/root/backup-minio"
+
+# config dsw 
+dsw_conf_dir: /etc/dsw
+
+# dsw container app in "composer" format
+dsw_container_app:
+  networks:
+    dsw_net:
+
+  volumes:
+    s3_data:
+    db_data:
+
+  containers:
+    dsw_server:
+      image: "{{ dsw_server_image }}"
+      ports: "{{ dsw_server_ports | default(omit) }}"
+      depends_on:
+        - postgres
+        - minio
+      volumes:
+        - "{dsw_conf_dir}}/dsw.yml:/application/engine-wizard/config/application.yml:ro:z"
+        - "{dsw_conf_dir}}/integration.yml:/application/engine-wizard/config/integration.yml:ro:z"
+
+    dsw_client:
+      image: "{{ dsw_client_image }}"
+      ports: "{{ dsw_client_ports | default(omit) }}"
+      environment:
+        API_URL: https://{{ hostname }}:3443
+      volumes:
+        - "{{ dsw_conf_dir }}/dsw-client/src/scss/customizations/_variables.scss:/src/scss/customizations/_variables.scss:ro:Z"
+        - "{{ dsw_conf_dir }}/dsw-client/usr/share/nginx/html/favicon.ico:/usr/share/nginx/html/favicon.ico:ro:Z"
+
+    dsw_docworker:
+      image: "{{ dsw_docworker_image }}"
+      depends_on:
+        - postgres
+        - minio
+        - dsw_server
+      volumes:
+        - "{{ dsw_conf_dir }}/dsw.yml:/app/config.yml:ro:z"
+
+    dsw_mailer:
+      image: "{{ dsw_mailer_image }}"
+      depends_on:
+        - postgres
+        - dsw_server
+      volumes:
+        - "{{ dsw_config_dir }}/dsw.yml:/app/config.yml:ro:z"
+        - "{{ dsw_config_dir }}/dsw-mailer/templates:/app/templates:ro:Z"
+
+    postgres:
+      image: "{{ dsw_postgres_image }}"
+      environment:
+        POSTGRES_DB: "{{ dsw_postgres_db }}"
+        POSTGRES_USER: "{{ dsw_postgres_user }}"
+        POSTGRES_PASSWORD: "{{ dsw_postgres_password }}"
+      ports: "{{ dsw_postgres_ports}}"
+      volumes:
+        - db_data:/var/lib/postgresql/data
+        - "{{ dsw_postgres_backup_dir_outside }}:{{ dsw_postgres_backup_dir_inside }}"
+
+    minio:
+      image: "{{ dsw_minio_image }}"
+      command: [server, /data, --console-address, ":9001"]
+      ports: "{{ dsw_minio_ports | default(omit) }}"
+      environment:
+        MINIO_ROOT_USER: "{{ dsw_minio_user }}"
+        MINIO_ROOT_PASSWORD: "{{ dsw_minio_password }}"
+      volumes:
+        - s3_data:/data
+
+# create bucket - only for init!
+dsw_miniomc_container:
+  image: "{{ dsw_repo }}/minio/mc"
+  command: [] # TODO
+  restart_policy: none
+  detach: false
+  environment:
+    MINIO_ROOT_USER: "{{ dsw_minio_user }}"
+    MINIO_ROOT_PASSWORD: "{{ dsw_minio_password }}"
+    MINIO_BUCKET: "{{ dsw_minio_password }}"

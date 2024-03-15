@@ -22,12 +22,3 @@
     label: "{{ item.name }}"
 
 
-
-# - name: "Ensure that network '{{ c8s_network }}' is absent"
-#   containers.podman.podman_network:
-#     name: "{{ c8s_network_name }}"
-#     state: absent
-#   # become: true
-#   when:
-#     - c8s_network_name is defined
-#     - c8s_network_state == 'absent'

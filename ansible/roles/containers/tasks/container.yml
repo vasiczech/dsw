@@ -1,4 +1,5 @@
-- ansible.builtin.set_fact:
+- name: Collect all containers
+  ansible.builtin.set_fact:
     _containers: >
         {{
           ([c8s_container] if c8s_container is defined else []) +
@@ -6,9 +7,7 @@
           ( c8s_project.containers if c8s_project.containers is defined else [])
         }}
 
-
-
-- name: "Ensure that the containers are present"
+- name: Ensure that the containers are present
   containers.podman.podman_container:
     name: "{{ item.name }}"
     image: "{{ item.image }}"
@@ -20,3 +19,6 @@
   loop: "{{ _containers }}"
   loop_control:
     label: "{{ item.name }}"
+
+- name: Set 
+  ansible.builtin.include_tasks: container-mgmt.yml
