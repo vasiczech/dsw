@@ -1,0 +1,78 @@
+system_hostname: dsw.mendelu.cz
+
+system_locale: C.UTF-8 # cs_CZ.UTF-8
+
+system_timezone: Europe/Prague
+system_ntp: chrony
+
+
+
+# move system_networks into in host_vars
+system_network_iterfaces:
+  - { name: vlan221, mac: 00:50:56:bf:fb:1a, ipv4_address: 195.178.73.44/25, ipv4_gateway: 195.178.73.1 }
+
+system_firewall_engine: nftables
+system__rules:
+  - { chain: INPUT, iif: vlan221, proto: tcp, dport: 443 }
+  - { chain: INPUT, iif: vlan221, proto: tcp, dport: 80 }
+  - { chain: SSH, saddr: 195.178.72.0/25, comment: 'z VLAN 201'}
+  - { chain: SSH, saddr: 195.178.73.0/25, comment: 'z VLAN 221'}
+  - { chain: SSH, saddr: 10.16.2.0/23, comment: 'z VPN Admin'}
+
+system_groups:
+  - { name: dsw-operator }
+
+system_users:
+    # DEFAULT | state: present, create_user_group: true, set_password: false, set_key: true
+  - { username: testuser, state: present }
+  # - { username: ansible-it } 
+  # - { username: passing1, set_password: true }
+  # - { username: otevrel }
+  # - { username: vasicek }
+  # - { username: dsw-operator }
+
+system_sudoers:
+    # DEFAULT | state: present, commands: ALL, nopasswd: false
+  - { username: ansible-it, commands: ALL, nopasswd: true }
+  - { username: passing1, commands: ALL, nopasswd: true }
+  - { username: otevrel, commands: ALL, nopasswd: true }
+  - { username: vasicek, commands: ALL, nopasswd: true }
+
+system_sshd_options:
+  - { name: PermitRootLogin, value: no }
+  - { name: PasswordAuthentication, value: no }
+  # - { name: AllowUsers, value: passing1 otevrel vasicek }
+
+system_mail:
+  relayhost: mail.mendelu.cz
+  username: dsw-operator
+  password: "{{ mail_password }}"
+  sender: 
+  recipient:
+
+system_epel_release: true
+system_upgrade_all: false
+system_packages:
+    # DEFAULT: state: present
+  - name: mlocate
+  - name: traceroute
+  - name: wget # curl?
+  - name: bash-completion
+  - name: bind-utils
+  - name: vim-enhanced
+  - { name: net-tools, state: absent }
+  # - name: htop
+  # - name: iotop
+  # - name: iftop
+
+# system_services:
+#   - name: chronyd
+#   - name: nftables
+#   - name: sshd
+#   - name: postfix
+#   - name: rsyslog
+#   - name: fail2ban
+
+
+
+

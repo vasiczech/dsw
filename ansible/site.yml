@@ -8,7 +8,7 @@
   roles:
     # Config local system role (AlmaLinux)
     # in-role-tags: hostname, timezone, packages, users, groups, and TODO many others
-    - { role: system, tags: [system] }
+    - { role: mendelu.infra.system, tags: [system] }
 
     # DSW App
     # in-role-tags: minio, postgres, dsw-server, dsw-mailer, dsw-client, dsw-docworker

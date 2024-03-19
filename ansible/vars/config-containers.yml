@@ -1,7 +1,9 @@
 dsw_minio_net: dsw_net # for create bucket # TPDP better
 
 # dsw container app in "composer" format
-dsw_container_app:
+containers_project:
+  name: dsw
+  
   networks:
     dsw_net:
 
