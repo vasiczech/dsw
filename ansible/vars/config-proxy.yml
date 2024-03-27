@@ -1,0 +1,3 @@
+proxy_server_name: "dsw.mendelu.cz"
+proxy_service_client_url: "http://wizard-client:8080"
+proxy_service_api_url: "http://wizard-server:3000/wizard-api"

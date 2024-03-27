@@ -3,7 +3,7 @@ dsw_minio_net: dsw_net # for create bucket # TPDP better
 # dsw container app in "composer" format
 containers_project:
   name: dsw
-  
+
   networks:
     dsw_net:
 
@@ -19,14 +19,14 @@ containers_project:
         - postgres
         - minio
       volumes:
-        - "{dsw_conf_dir}}/dsw.yml:/application/engine-wizard/config/application.yml:ro:z"
-        - "{dsw_conf_dir}}/integration.yml:/application/engine-wizard/config/integration.yml:ro:z"
+        - "{{ dsw_conf_dir}}/dsw.yml:/application/engine-wizard/config/application.yml:ro:z"
+        - "{{ dsw_conf_dir}}/integration.yml:/application/engine-wizard/config/integration.yml:ro:z"
 
     dsw_client:
       image: "{{ dsw_client_image }}"
       ports: "{{ dsw_client_ports | default(omit) }}"
       environment:
-        API_URL: https://{{ hostname }}:3443
+        API_URL: https://{{ dsw_hostname }}:3443
       volumes:
         - "{{ dsw_conf_dir }}/dsw-client/src/scss/customizations/_variables.scss:/src/scss/customizations/_variables.scss:ro:Z"
         - "{{ dsw_conf_dir }}/dsw-client/usr/share/nginx/html/favicon.ico:/usr/share/nginx/html/favicon.ico:ro:Z"

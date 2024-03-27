@@ -1,0 +1,8 @@
+# Aktualizovat všechny uživatele v DSW
+
+- name: init | Update all users
+  ansible.builtin.include_tasks: user_update.yml
+  loop: "{{ dsw_users }}" # TODO zmenit na skutecne uzivatele
+  loop_control:
+    loop_var: __dsw_user_update
+    label: "{{ __dsw_user_update.email }}"

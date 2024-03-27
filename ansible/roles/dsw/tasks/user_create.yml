@@ -1,0 +1,38 @@
+# Vytvori interniho uzivatele
+# @required_vars: [dsw_user_email]
+
+- name: user_create | Get API token if nessesary
+  ansible.builtin.include_tasks: get_api_token.yml
+  when: __dsw_api_token is not defined
+
+- name: "user_create | Set __dsw_user_email"
+  ansible.builtin.set_fact:
+    __dsw_user_email: "{{ __dsw_user_create.email }}"
+
+- name: "user_create | Check if user does not present. Try to get user UUID for {{ __dsw_user_email }}"
+  ansible.builtin.include_tasks: user_get.yml
+
+- name: "user_create | Create internal user: {{ __dsw_user_email }}"
+  ansible.builtin.uri:
+    url: "{{ dsw_api_url }}/users"
+    method: POST
+    status_code: 201
+    headers:
+      Authorization: "Bearer {{ __dsw_api_token }}"
+    body_format: json
+    body:
+      email:       "{{ __dsw_user_create.email }}"
+      password:    "{{ __dsw_user_create.password }}"
+      firstName:   "{{ __dsw_user_create.firstName }}"
+      lastName:    "{{ __dsw_user_create.lastName }}"
+      role:        "{{ __dsw_user_create.role }}"
+      affiliation: "{{ __dsw_user_create.affiliation }}"
+  register: dsw_api_response
+  when:
+    - __dsw_user == none
+
+- name: "[DEBUG] user_create | Got DSW API response"
+  ansible.builtin.debug:
+    var: __dsw_api_response
+  when:
+    - "'DEBUG' in ansible_run_tags"

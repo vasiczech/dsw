@@ -1,24 +1,43 @@
-- block:
-    - name: Configure DSW Application
-      ansible.builtin.include_tasks: config.yml
-  tags:
-    - config
-  # notify:
-  #   - containers.restart
+- name: Include tasks '{{ dsw_action }}'
+  ansible.builtin.include_tasks: "{{ dsw_action }}.yml"
 
-# - block:
-#     - name: Start DSW Appcication
-#       ansible.builtin.include_role:
-#         name: containers
-#         vars:
-#           containers_applicatinon: "{{ dsw_container_app }}"
-#           containers_state: started
+# - name: Configure DSW Application
+#   ansible.builtin.include_tasks: configure.yml
 #   tags:
-#     - containers
+#     - configure
+#     - dsw-config-app
+#     - dsw-config-client
+#     - dsw-config-mailer
+#     - dsw-config-minio
+#     - dsw-config-postgres
 
-# - name: Init DSW Application
+# - name: Configure DSW Application
+#   ansible.builtin.include_tasks: containers.yml
+#   tags:
+#     - configure
+#     - composer
+
+# - name: Init DSW
 #   ansible.builtin.include_tasks: init.yml
 #   tags:
 #     - init
-#   notify:
-#     - containers.restart
+#     - dsw_users_roles
+
+# - name: Get DSW API token from the local admin
+#   ansible.builtin.include_tasks: get_admin_token.yml
+#   when: "'dsw-api-token' is in ansible_run_tags"
+
+
+# - name: Create DSW bucket
+#   ansible.builtin.include_tasks: create_bucket.yml
+#   tags:
+#     - dsw-create-bucket
+#     - dsw-create-bucket-minio
+
+# # - name: Set users roles
+# #   include_tasks: tasks/dsw_set_users_roles.yml
+# #   loop: "{{ dsw.users.roles | dict2items }}"
+# #   loop_control:
+# #     loop_var: user_item
+# #   tags:
+# #     - dsw_users_roles

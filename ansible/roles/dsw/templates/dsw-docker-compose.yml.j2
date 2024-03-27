@@ -1,0 +1,86 @@
+version: '3'
+services:
+
+  wizard-server:
+    image: {{ dsw_server_image }}
+    restart: always
+    ports: {{ dsw_server_ports | default(omit) }}
+    depends_on:
+      - postgres
+      - minio
+    volumes:
+      - {{ dsw_config_dir }}/dsw.yml:/app/config/application.yml:ro,z
+      - {{ dsw_ssl_cacerts_outside }}:{{ dsw_ssl_cacerts_inside }}:ro,z
+#  - {{ dsw_config_dir }}/integration.yml:/app/config/integration.yml:ro,z
+
+  wizard-client:
+    image: {{ dsw_client_image }}
+    restart: always
+    ports: {{ dsw_client_ports | default(omit) }}
+    environment:
+      API_URL: {{ dsw_api_url }}
+    volumes: []
+#  - {{ dsw_config_dir }}/dsw-client/src/scss/customizations/_variables.scss:/src/scss/customizations/_variables.scss:ro,z
+#  - {{ dsw_config_dir }}/dsw-client/usr/share/nginx/html/favicon.ico:/usr/share/nginx/html/favicon.ico:ro,z
+
+  docworker:
+    image: {{ dsw_docworker_image }}
+    restart: always
+    depends_on:
+      - postgres
+      - minio
+      - wizard-server
+    volumes:
+      - {{ dsw_config_dir }}/dsw.yml:/app/config/application.yml:ro,z
+
+  mailer:
+    image: {{ dsw_mailer_image }}
+    restart: always
+    depends_on:
+      - postgres
+      - wizard-server
+    volumes:
+      - {{ dsw_config_dir }}/dsw.yml:/app/config/application.yml:ro,z
+#  - {{ dsw_config_dir }}/dsw-mailer/templates:/home/user/templates:ro,z
+ 
+  postgres:
+    image: {{ dsw_postgres_image }}
+    restart: always
+    ports: {{ dsw_postgres_ports | default(omit) }}
+    environment:
+      POSTGRES_DB: {{ dsw_postgres_db }}
+      POSTGRES_USER: {{ dsw_postgres_user }}
+      POSTGRES_PASSWORD: {{ dsw_postgres_password }}
+    volumes:
+      - {{ dsw_postgres_data_dir}}:/var/lib/postgresql/data:rw,z
+      - {{ dsw_postgres_backup_dir }}:{{ dsw_postgres_backup_dir_inside }}:rw,z
+
+  minio:
+    image: {{ dsw_minio_image }}
+    command: server /data --console-address :9001
+    ports: {{ dsw_minio_ports | default(omit) }}
+    environment:
+      MINIO_ROOT_USER: {{ dsw_minio_user }}
+      MINIO_ROOT_PASSWORD: {{ dsw_minio_password }}
+    volumes:
+      - {{ dsw_minio_data_dir }}:/data:rw,z
+ 
+  reverse-proxy:
+    image: nginx:latest
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+      - 3443:3443
+    volumes:
+      - /etc/nginx/ssl:/etc/nginx/ssl:ro,z
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro,z
+  
+# volumes:
+#  db-data:
+#  s3-data:
+
+# networks:
+#  default:
+#   external:
+#     name: # dsw_network_name #

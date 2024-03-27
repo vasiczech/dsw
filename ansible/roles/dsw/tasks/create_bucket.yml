@@ -1,0 +1,33 @@
+# Vytvori a spusti docasny skript na vytvoreni bucketu
+# @required_vars: dsw_minio_script_dir, dsw_minio_bucket
+
+- name: "Have MinIO script dir '{{ dsw_minio_script_dir }}'"
+  ansible.builtin.file:
+    path: "{{ dsw_minio_script_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,go="
+  tags:
+    - always
+
+- name: Create a temporary script to create a new bucket
+  ansible.builtin.template:
+    src: dsw-create-bucket.sh.j2
+    dest: "{{ dsw_minio_script_dir }}/dsw-create-bucket.sh"
+    mode: '700'
+
+- name: Run script and try to create bucket {{ dsw_minio_bucket }}
+  ansible.builtin.command: "{{ dsw_minio_script_dir }}/dsw-create-bucket.sh"
+  register: command_result
+  changed_when:
+    - command_result.rc == 0
+    - '"Your previous request to create the named bucket succeeded and you already own it." not in command_result.stderr'
+  failed_when:
+    - command_result.rc != 0
+    - '"Your previous request to create the named bucket succeeded and you already own it." not in command_result.stderr'
+
+# - name: Remove temporary script
+#   ansible.builtin.file:
+#     path: "{{ minio_mc_dir }}/create-bucket.sh"
+#     state: absent

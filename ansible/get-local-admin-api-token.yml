@@ -1,0 +1,49 @@
+---
+# This playbook gets local admin API token from dswservers nodes
+
+- hosts: dswservers
+  become: yes
+
+  vars_files:
+  - vars/config-dsw.yml
+
+  tasks:
+
+  # - name: Try getting DSW API token from the local admin
+  #   uri:
+  #     url: "{{ dsw_api_url }}/tokens"
+  #     method: POST
+  #     status_code: 201
+  #     body_format: json
+  #     body:
+  #       email:    "{{ dsw.users.local_admin.email }}"
+  #       password: "{{ dsw.users.local_admin.password }}"
+  #   register: dsw_api_response
+  #   ignore_errors: yes
+
+  # - set_fact:
+  #     dsw_api_token: "{{ dsw_api_response.json.token }}"
+  #   ignore_errors: yes
+
+  - name: Get DSW API token from the default user
+    ansible.builtin.uri:
+      url: "http://127.0.0.1:3000/wizard-api/tokens"
+      # url: "{{ dsw_api_url }}/tokens"
+      method: POST
+      status_code: 201
+      body_format: json
+      body:
+        email: 'albert.einstein@example.com'
+        password: 'password'
+    register: dsw_api_response
+    when: dsw_api_token is not defined
+
+  - name: Set DSW API token
+    ansible.builtin.set_fact:
+      dsw_api_token: "{{ dsw_api_response.json.token }}"
+    when: dsw_api_token is not defined
+
+  - name: DSW local admin API token
+    ansible.builtin.debug:
+      msg: "Bearer {{ dsw_api_token }}"
+

@@ -1,0 +1,5 @@
+dsw_users:
+  - email: 113100@node.mendelu.cz
+    # role: researcher
+    role: dataSteward
+    # role: admin

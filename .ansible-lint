@@ -1,0 +1,7 @@
+skip_list:
+  - yaml[colons]
+  - name[casing]
+  - jinja[spacing]
+
+warn_list:
+  - name[template]

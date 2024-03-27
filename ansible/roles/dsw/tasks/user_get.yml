@@ -1,0 +1,35 @@
+# Vytvori interniho uzivatele
+# @required_vars: dsw_user_email, dsw_api_url
+
+- name: user_get | Get API token if nessesary
+  ansible.builtin.include_tasks: get_api_token.yml
+  when: __dsw_api_token is not defined
+
+- name: "user_get | Set user data to none"
+  ansible.builtin.set_fact:
+    __dsw_user:
+
+- name: "user_get | Check if internal user exists: {{ __dsw_user_email }}"
+  ansible.builtin.uri:
+    url: "{{ dsw_api_url }}/users?q={{ __dsw_user_email }}"
+    method: GET
+    status_code: 200
+    headers:
+      Authorization: "Bearer {{ __dsw_api_token }}"
+  register: dsw_api_response
+
+- name: "[DEBUG] user_get | Got DSW API response {{ __dsw_user_email }}"
+  ansible.builtin.debug:
+    var: dsw_api_response
+  when: "'DEBUG' in ansible_run_tags"
+
+- name: "user_get | Set the current data for user '{{ __dsw_user_email }}''"
+  ansible.builtin.set_fact:
+    __dsw_user: "{{ dsw_api_response.json._embedded.users[0] }}"
+  when: dsw_api_response.json._embedded.users[0] is defined
+
+- name: "[DEBUG] user_get | Got user current data: {{ __dsw_user_email }}"
+  ansible.builtin.debug:
+    var: __dsw_user
+  when:
+    - "'DEBUG' in ansible_run_tags"
