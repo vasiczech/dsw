@@ -6,7 +6,7 @@
 
 - name: init | Set internal admin
   ansible.builtin.set_fact:
-    __dsw_user_create: "{{ dsw_internal_admin }}"
+    __dsw_user_create: "{{ dsw_users_internal_admin }}"
 
 - name: init | Create internal admin
   ansible.builtin.include_tasks: user_create.yml

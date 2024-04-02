@@ -1,43 +1,13 @@
 - name: Include tasks '{{ dsw_action }}'
-  ansible.builtin.include_tasks: "{{ dsw_action }}.yml"
+  ansible.builtin.include_tasks: "dsw_{{ dsw_action }}.yml"
+  when: dsw_action is defined
 
-# - name: Configure DSW Application
-#   ansible.builtin.include_tasks: configure.yml
-#   tags:
-#     - configure
-#     - dsw-config-app
-#     - dsw-config-client
-#     - dsw-config-mailer
-#     - dsw-config-minio
-#     - dsw-config-postgres
-
-# - name: Configure DSW Application
-#   ansible.builtin.include_tasks: containers.yml
-#   tags:
-#     - configure
-#     - composer
-
-# - name: Init DSW
-#   ansible.builtin.include_tasks: init.yml
-#   tags:
-#     - init
-#     - dsw_users_roles
-
-# - name: Get DSW API token from the local admin
-#   ansible.builtin.include_tasks: get_admin_token.yml
-#   when: "'dsw-api-token' is in ansible_run_tags"
-
-
-# - name: Create DSW bucket
-#   ansible.builtin.include_tasks: create_bucket.yml
-#   tags:
-#     - dsw-create-bucket
-#     - dsw-create-bucket-minio
-
-# # - name: Set users roles
-# #   include_tasks: tasks/dsw_set_users_roles.yml
-# #   loop: "{{ dsw.users.roles | dict2items }}"
-# #   loop_control:
-# #     loop_var: user_item
-# #   tags:
-# #     - dsw_users_roles
+- name: Include default action tasks
+  when: dsw_action is not defined
+  block:
+    - name: Include tasks
+      ansible.builtin.include_tasks: "dsw_configure.yml"
+    - name: Include tasks
+      ansible.builtin.include_tasks: "dsw_init.yml"
+    - name: Include tasks
+      ansible.builtin.include_tasks: "dsw_start.yml"

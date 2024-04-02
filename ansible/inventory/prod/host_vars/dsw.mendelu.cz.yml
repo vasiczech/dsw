@@ -2,7 +2,7 @@
 vm:
   name: dsw
   template: AlmaLinux-9.3-x86_64-minimal # TODO: diskuse o sabone
-  cpu: 4 #(2:2:1)
+  cpu: 4 # (2:2:1)
   ram_gb: 8
   disks:
     - name: HDD1
@@ -12,15 +12,15 @@ vm:
     - name: mgmt
       vlan: 221
       mac: 00:50:56:aa:aa:aa
-      ip: 
+      ip:
 
-system_filesystem:      
+system_filesystem:
   partitions:
     - mountpont: /
       size_gb: 41.5
       filesystem: XFS
     - mountpont: /boot/efi
-      size_mb: 512 
+      size_mb: 512
       filesystem: vfat
     - mountpont: /export
       size_gb: 150
@@ -36,7 +36,7 @@ system_networks:
     - name: mgmt
       device: ens192
       vlan: 221
-      ipv4_address: 195.178.73.44/25 # or 
+      ipv4_address: 195.178.73.44/25 # or
       ipv4_gateway: 195.178.73.44
       ipv4_dns: [195.178.72.150, 195.113.194.110]
   routes:

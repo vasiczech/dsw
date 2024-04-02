@@ -5,15 +5,15 @@
 # Pri nastaveni globalniho tagu "DEBUG" vypise token do konzole
 # @required_vars: dsw_api_url, dsw_internal_admin, dsw_default_admin
 
-- name: "get_api_token | Try to getting DSW API token from the local admin '{{ dsw_internal_admin.email }}'"
+- name: "get_api_token | Try to getting DSW API token from the local admin '{{ dsw_users_internal_admin.email }}'"
   ansible.builtin.uri:
     url: "{{ dsw_api_url }}/tokens"
     method: POST
     status_code: 201
     body_format: json
     body:
-      email: "{{ dsw_internal_admin.email }}"
-      password: "{{ dsw_internal_admin.password }}"
+      email: "{{ dsw_users_internal_admin.email }}"
+      password: "{{ dsw_users_internal_admin.password }}"
   register: __dsw_api_response
   failed_when: false
 
@@ -42,4 +42,4 @@
 - name: "[DEBUG] get_token | Got DSW API token"
   ansible.builtin.debug:
     msg: "Bearer {{ __dsw_api_token }}"
-  when: "'DEBUG' is in ansible_run_tags"
+  when: DEBUG is defined

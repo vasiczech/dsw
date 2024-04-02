@@ -1,28 +1,51 @@
 - name: DSW install
   hosts: dswservers
-  become: true
-  vars_files:
-    - vars/config-system.yml
-    - vars/config-dsw.yml
-    - vars/config-proxy.yml
-    - vars/config-users.yml
 
-  roles:
-    # Config local system role (AlmaLinux)
-    # in-role-tags: hostname, timezone, packages, users, groups, and TODO many others
-    - { role: mendelu.infra.system, tags: system }
+  vars:
+    _env: "{{ lookup('env', 'ENVIRONMENT') | default(inventory.env) | default('prod')}}"
 
-    # DSW App
-    # in-role-tags: minio, postgres, dsw-server, dsw-mailer, dsw-client, dsw-docworker
-    # - setup
-    - { role: nginx-reverse-proxy, tags: proxy }
-    - { role: dsw, tags: dsw }
-    # - control
-    # - { role: dsw, tags: [never, backup], dsw_action: backup }
-    # - { role: dsw, tags: [never, stop, restart, destroy], dsw_action: stop }
-    # - { role: dsw, tags: [never, start, restart], dsw_action: start }
-    # - { role: dsw, tags: [never, destroy], dsw_action: destroy }
+  tasks:
+    - name: Include common vars
+      ansible.builtin.include_vars: "vars/config-common.yml"
+      tags: always
 
-    # # TODO
-    # # monitoring
-    # - { role: prom-node-exporter, tags: [ monitoring ] }
+    - name: Include environment specific vars
+      ansible.builtin.include_vars: "vars/config-{{ _env }}.yml"
+      tags: always
+
+    - name: Role System
+      ansible.builtin.include_role:
+        name: system
+      vars:
+        system_firewall:
+          - { port: 80, proto: "tcp" }
+          - { port: 443, proto: "tcp" }
+      tags: system
+
+    - name: Role Keycloack Client
+      ansible.builtin.include_role:
+        name: keycloak-client
+        tasks_from: keycloak-get-token.yml
+      vars:
+        keycloak_regenerate_token: "{{ renew_token | default(false) }}"
+      tags: keycloak
+
+    - name: Role DSW
+      ansible.builtin.include_role:
+        name: dsw
+      vars:
+        dsw_keycloak_token: "{{ keycloak_token_dsw }}"
+      tags: dsw
+
+    - name: Role DSW Sandbox
+      ansible.builtin.include_role:
+        name: dsw
+      vars:
+        dsw_name: dsw-sandbox
+        dsw_dir: /opt/dsw-sandbox
+      tags: dsw-sandbox
+
+    - name: Role Nginx Reverse Proxy
+      ansible.builtin.include_role:
+        name: nginx-reverse-proxy
+      tags: proxy
