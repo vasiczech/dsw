@@ -1,4 +1,0 @@
-# DSW default vars
-
-dsw_minio_script_dir: /root/minio-script
-dsw_containers_network: dsw_default

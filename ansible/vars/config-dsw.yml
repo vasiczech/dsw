@@ -1,16 +1,39 @@
-# container images
-dsw_repo: docker.io
-# dsw_server_image: "{{ dsw_repo }}/datastewardshipwizard/wizard-server:3.12.1"
-# dsw_client_image: "{{ dsw_repo }}/datastewardshipwizard/wizard-client:3.12"
-# dsw_docworker_image: "{{ dsw_repo }}/datastewardshipwizard/document-worker:3.12.1"
-# dsw_mailer_image: "{{ dsw_repo }}/datastewardshipwizard/mailer:3.12"
-# dsw_postgres_image: "{{ dsw_repo }}/postgres:13.3"
-dsw_server_image: "{{ dsw_repo }}/datastewardshipwizard/wizard-server:4.4"
-dsw_client_image: "{{ dsw_repo }}/datastewardshipwizard/wizard-client:4.4"
-dsw_docworker_image: "{{ dsw_repo }}/datastewardshipwizard/document-worker:4.4"
-dsw_mailer_image: "{{ dsw_repo }}/datastewardshipwizard/mailer:4.4"
-dsw_postgres_image: "{{ dsw_repo }}/postgres:15.6"
-dsw_minio_image: "{{ dsw_repo }}/minio/minio:latest" # :RELEASE.2022-02-24T22-12-01Z # TODO
+dsw_name: dsw
+dsw_version: 4.4
+
+dsw_client_url: "https://{{ dsw_name }}.mendelu.cz/wizard"
+# dsw_api_url: "https://api.{{ dsw_name }}.dsw.mendelu.cz/wizard-api"
+dsw_api_url: "https://{{ dsw_name }}.dsw.mendelu.cz:3443/wizard-api"
+
+dsw_data_dir: /export/dsw
+
+dsw_postgres_version: latest # TODO pin version
+dsw_postgres_admin_password: postgres
+
+dsw_minio_version: latest # TODO: pin version RELEASE.20xx-xx-xxxx-xx-xxx
+dsw_minio_admin_password: miniopass
+
+dsw_integration_api_key: xxx # TODO !vault |
+
+dsw_general_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63613965346638326339313133326530643863343662303539373166363539623731316638656634
+          6265383532316462653538313330383866336235643639650a663833623830653839653433346366
+          66303934376431393262333230353561623331393964616438663231656334333364623236626635
+          6535653364313064610a663536356132323532303039386565353862346133366430373934303262
+          34623862333230333965666430623361653466343430633637343532393664616565343462363762
+          3763313538623566383366393231623262313732633262653761
+
+dsw_service_oidc_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          39333932363039366438306230313535346637636435646231396435306263353534393031656661
+          6566386563373834633330323134393231373937363764390a613232633039336438333732396465
+          30613166613966303766373337306632373237633438366663666232313030343437306531356436
+          6636303833623635330a333630373162656464653235396630636239616432393036626636313161
+          64393365363737643039376133623634363365383234336435616265383939613937656333386366
+          3035613536393038313361646262643434633233353366336638
+
+dsw_service_oidc_url: https://keycloak.mendelu.cz/auth/realms/dsw
 
 # container expose ports - only devel environment, in production use HTTPS proxy
 dsw_client_ports:
@@ -23,46 +46,6 @@ dsw_minio_ports:
 dsw_postgres_ports:
   - 127.0.0.1:5432:5432
 
-# config postgres
-dsw_postgres_data_dir: /export/postgres
-dsw_postgres_backup_dir: /export/backup-postgres
-dsw_postgres_backup_dir_inside: /backup-postgres
-dsw_postgres_db: engine-wizard
-dsw_postgres_user: postgres
-dsw_postgres_password: postgres
-dsw_postgres_url: postgresql://postgres:postgres@postgres:5432/engine-wizard
-
-# config minio
-dsw_minio_data_dir: /export/minio
-dsw_minio_backup_dir: /export/backup-minio
-dsw_minio_backup_dir_inside: /backup-minio
-dsw_minio_bucket: engine-wizard
-dsw_minio_user: minio
-dsw_minio_password: miniopass
-dsw_minio_url: http://minio:9000
-
-# config dsw-general
-dsw_config_dir: /etc/dsw
-dsw_client_url: "https://dsw.mendelu.cz:443"
-dsw_api_url: "https://dsw.mendelu.cz:3443/wizard-api"
-dsw_general_secret: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          63613965346638326339313133326530643863343662303539373166363539623731316638656634
-          6265383532316462653538313330383866336235643639650a663833623830653839653433346366
-          66303934376431393262333230353561623331393964616438663231656334333364623236626635
-          6535653364313064610a663536356132323532303039386565353862346133366430373934303262
-          34623862333230333965666430623361653466343430633637343532393664616565343462363762
-          3763313538623566383366393231623262313732633262653761
-# dsw_general_serviceToken: !vault |
-#           $ANSIBLE_VAULT;1.1;AES256
-#           63333931316136373632376565393961623334323562633363333637323866343464613963303936
-#           6132623364636534643964333238613232373466363362350a346330633634383333613938623837
-#           65303137323538633033636534343430383834633030336164313439313163383733643165346365
-#           3366613436346264630a383233356566633463616430613532316439653963366136393061666661
-#           37633534373635663336333739613965343137636339346662313936336634646665
-dsw_integration_api_key: xxx # TODO !vault |
-dsw_backup_ts_format: '%u-%A-%H'
-
 dsw_internal_admin:
   firstName: Admin
   lastName: MENDELU DSW
@@ -72,31 +55,8 @@ dsw_internal_admin:
   role: admin
 
 
-dsw_service_oidc_url: https://keycloak.mendelu.cz/auth/realms/dsw
-dsw_users_oidc_secret: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          39333932363039366438306230313535346637636435646231396435306263353534393031656661
-          6566386563373834633330323134393231373937363764390a613232633039336438333732396465
-          30613166613966303766373337306632373237633438366663666232313030343437306531356436
-          6636303833623635330a333630373162656464653235396630636239616432393036626636313161
-          64393365363737643039376133623634363365383234336435616265383939613937656333386366
-          3035613536393038313361646262643434633233353366336638
-
 # config dsw-mailer
 dsw_mail_enabled: true # legacy (if false, no emails are sent - dry-run)
 dsw_mail_name:  MENDELU DS Wizard
 dsw_mail_email: dsw@mendelu.cz
 dsw_mail_host: mlcoun.mendelu.cz
-dsw_mail_port: 587 # 25, 465
-dsw_mail_security: starttls
-dsw_mail_auth_enabled: false
-dsw_mail_username: # dsw@mendelu.cz
-dsw_mail_password: # none
-dsw_mail_ssl: true
-dsw_mail_rate_limit:
-  window: 60 # time windows in seconds, 0=disabled rate limit
-  count: 30 # max number of messages within the window
-dsw_mail_timeout: 30
-
-dsw_ssl_cacerts_outside: /etc/ssl/certs/ca-bundle.crt
-dsw_ssl_cacerts_inside: /etc/ssl/certs/ca-certificates.crt

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-docker run --rm --net {{ dsw_containers_network }} \
-  --entrypoint sh minio/mc -c "\
-  mc config host add dswminio {{ dsw_minio_url }} {{ dsw_minio_user}} {{ dsw_minio_password }} && \
-  mc mb dswminio/{{ dsw_minio_bucket }}
-"

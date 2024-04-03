@@ -1,8 +1,0 @@
-dsw_default_users:
-  - email: &default-admin albert.einstein@example.com
-  - email: isaac.newton@example.com
-  - email: nikola.tesla@example.com
-
-dsw_default_admin:
-  email: *default-admin
-  password: 'password'

@@ -44,18 +44,21 @@ system_networks:
 
 # TODO TEMPLATE
 
-###Instalace OS
+### Instalace OS
 # AlmaLinux-9.3-x86_64-minimal.iso; sha256sum = 6624593b53c89195f7b68b2070a280d47b4276a7cbc10d2216661bf35d4f442b
 # English English (United States)
 # Nastaveni root hesla; povoleni SSH prihlaseni uzivatele root (tim se taky pripravi mkdir /root/.ssh ; chmod 700 /root/.ssh ).
 # Vlastni rozdeleni HDD; Standard Partition; svazky jak je uvedeno vyse.
 # Vypnuti vsech NIC.
 
-### Rucne pridat na novy stroj: 
-## sitove nastaveni mgmt rozhrani 
+### Rucne pridat na novy stroj:
+## sitove nastaveni mgmt rozhrani
 # ip a
 # nmcli connection modify ens192 ipv4.address 195.178.73.44/25 ipv4.gateway 195.178.73.1 ipv4.dns 195.178.72.150
 ## Z jineho stroje se pripojit na SSH:
 # ssh root@195.178.73.44
 ## Vlozit klic pro uzivatele root:
-# echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz7x2TD1V7xnmhvrFRbfup6U5GuI8uFkk4o5wL4Qfx3UgHDV/BmarUVmSI6275mLIIja4WuRBqNA/PzWN4ljuEQVA+EfRv0FBLxaU5IZ79QPVr/Ooovt0FACfhOX0SFmOUTA1QQamhF506vbo06v0chkcXaay0vzBM/qlR4ua/oCLsg1GYOZx44VWUX75H1DtmWi3/X+tGNMLCsxxLELqDJ5XZ5tZWULRBi23xNppyfoI41aSWWkn1z8QJjwqdLBGPYezBQK/T2Z+cKM7h0mVtmVQE0FRSRNSXdA45HgOwi7k44prlA1JDrvUK94oy0oU/6+LwahECkhQrru8TtuNL root@ans.mgmt.mendelu.cz' > /root/.ssh/authorized_keys ; chmod 600 /root/.ssh/authorized_keys
+# echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz7x2TD1V7xnmhvrFRbfup6U5GuI8uFkk4o5wL4Qfx3UgHDV/BmarUVmSI6275mLIIja4WuRBqNA/Pz
+#   WN4ljuEQVA+EfRv0FBLxaU5IZ79QPVr/Ooovt0FACfhOX0SFmOUTA1QQamhF506vbo06v0chkcXaay0vzBM/qlR4ua/oCLsg1GYOZx44VWUX75H1DtmWi3/X+
+#   tGNMLCsxxLELqDJ5XZ5tZWULRBi23xNppyfoI41aSWWkn1z8QJjwqdLBGPYezBQK/T2Z+cKM7h0mVtmVQE0FRSRNSXdA45HgOwi7k44prlA1JDrvUK94oy0oU
+#   /6+LwahECkhQrru8TtuNL root@ans.mgmt.mendelu.cz' > /root/.ssh/authorized_keys ; chmod 600 /root/.ssh/authorized_keys
