@@ -1,18 +1,22 @@
 - name: DSW
-  hosts: dswservers
+  hosts: dsw
   become: true
-  vars:
-    project:
-      name: DSW
-      description:
-      server:
-        cpu: 4
-        ram_gb: 8
-  vars_files:
-    - vars/config-dsw.yml
-    - vars/config-containers.yml
 
-  roles:
-    # - { role: mendelu.oit.project }
-    - { role: dsw, tags: [dsw]}
-    - { role: containers, tags: [containers]}
+  tasks:
+    - name: Clean up old files
+      ansible.builtin.import_role:
+        name: mendelu.dsw.dsw
+        tasks_from: dsw_clean
+      tags: [clean]
+
+    - name: Configure DSW
+      ansible.builtin.import_role:
+        name: mendelu.dsw.dsw
+        tasks_from: dsw_configure
+      tags: [configure]
+
+    - name: Configure Reverse Proxy
+      ansible.builtin.import_role:
+        name: nginx-reverse-proxy
+        tasks_from: proxy_configure
+      tags: [proxy, configure]

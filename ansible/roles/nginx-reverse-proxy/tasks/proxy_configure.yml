@@ -1,0 +1,31 @@
+- name: "Have reverse proxy config dir '{{ rproxy_config_dir }}'"
+  ansible.builtin.file:
+    path: "{{ rproxy_config_dir }}/nginx/ssl"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,go=rx"
+
+- name: Copy SSL certs
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ rproxy_config_dir }}/nginx/ssl"
+    mode: "{{ item.mode | default('0644') }}"
+  loop:
+    - { src: "key-dsw.mendelu.cz.pem", mode: '0600'}
+    - { src: "cert-dsw.mendelu.cz.pem" }
+    - { src: "ca-geant.pem" }
+
+- name: Create nginx.conf
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ rproxy_config_dir }}/nginx/nginx.conf"
+    mode: '0644'
+
+- name: "Configure 'docker-compose.yml' in: '{{ rproxy_config_dir }}'"
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ rproxy_config_dir }}/docker-compose.yml"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,go="
