@@ -1,0 +1,5 @@
+dswapp:
+  children:
+    dswapp_dev:
+      hosts:
+        dsw.mendelu.cz:

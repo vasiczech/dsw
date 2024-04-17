@@ -1,0 +1,10 @@
+- name: Get DSW Token
+  hosts: dswservers
+  become: true
+
+  tasks:
+
+    - name: Get DSW API token from admin user
+      ansible.builtin.include_role:
+        name: mendelu.dsw.dsw_instances
+        tasks_from: get_api_token

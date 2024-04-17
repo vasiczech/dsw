@@ -11,7 +11,7 @@ system_network_iterfaces:
   - { name: vlan221, mac: 00:50:56:bf:fb:1a, ipv4_address: 195.178.73.44/25, ipv4_gateway: 195.178.73.1 }
 
 system_firewall_engine: nftables
-system__rules:
+system_firewall_rules:
   - { chain: INPUT, iif: vlan221, proto: tcp, dport: 443 }
   - { chain: INPUT, iif: vlan221, proto: tcp, dport: 80 }
   - { chain: SSH, saddr: 195.178.72.0/25, comment: 'z VLAN 201' }
@@ -73,3 +73,21 @@ system_packages:
 #   - name: postfix
 #   - name: rsyslog
 #   - name: fail2ban
+
+rproxy_ssl_certificate: cert-dsw.mendelu.cz.pem
+rproxy_ssl_certificate_key: key-dsw.mendelu.cz.pem
+rproxy_ssl_trusted_certificate: ca-geant.pem
+
+rproxy_ssl_servers:
+  - server_name: dsw.mendelu.cz
+    proxy_pass: http://dsw-client:8080
+
+  - port: 3443
+    server_name: dsw.mendelu.cz
+    proxy_pass: http://dsw-server:3000
+
+  - server_name: dsw-test.mendelu.cz
+    proxy_pass: http://dsw-test-wizard-client:8080
+
+  - server_name: api.dsw-test.mendelu.cz
+    proxy_pass: http://dsw-test-wizard-server:3000

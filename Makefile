@@ -2,8 +2,6 @@
 .PHONY: all configure install restart test
 
 ENVIRONMENT ?= production
-STATE ?= running
-
 
 all:
 	set -eu -o pipefail

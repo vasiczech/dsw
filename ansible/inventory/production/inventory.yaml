@@ -1,0 +1,15 @@
+dswservers:
+  hosts:
+    dsw.mendelu.cz:
+
+dswapp:
+  children:
+    dswapp_prod:
+      hosts:
+        dsw.mendelu.cz:
+    dswapp_test:
+      hosts:
+        dsw.mendelu.cz:
+    dswapp_dev:
+      hosts:
+        dsw.mendelu.cz:

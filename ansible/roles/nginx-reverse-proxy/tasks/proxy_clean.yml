@@ -1,4 +1,0 @@
-- name: "Clean nginx config directory {{ proxy_config_dir }}"
-  ansible.builtin.file:
-    path: "{{ rproxy_config_dir }}"
-    state: absent

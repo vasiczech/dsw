@@ -1,0 +1,13 @@
+dsw_namespace: dsw
+
+dsw_client_url: https://dsw.mendelu.cz/wizard
+dsw_api_url:    https://dsw.mendelu.cz/wizard-api
+dsw_s3_url:     https://dsw-s3.mendelu.cz
+
+dsw_version: '4.4'
+dsw_postgres_version: '15.6'
+dsw_minio_version: RELEASE.2024-04-06T05-26-02Z
+dsw_data_dir: /export/dsw
+
+# dsw_general_rsa_private_key: "{{ lookup('file', 'dsw-private-key.yml') }}"
+# dsw-general_secret: "{{ lookup('file', 'dsw-secret.yml') }}"

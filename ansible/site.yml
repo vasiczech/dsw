@@ -1,51 +1,24 @@
-- name: DSW install
-  hosts: dswservers
+- name: Install System
+  hosts: dswhost
+  become: true
+  roles:
+    - role: mendelu.infra.system
+    # - role: mendelu.infra.containers
+    # - role: mendelu.infra.firewall
+    # - role: mendelu.infra.email
+  tags: system
 
-  vars:
-    _env: "{{ lookup('env', 'ENVIRONMENT') | default(inventory.env) | default('prod')}}"
+- name: Install DSW Application
+  # all instances, use --limit to limit to specific instance
+  hosts: dswapp
+  become: true
+  roles:
+    - role: mendelu.dsw.dsw
+  tags: dsw
 
-  tasks:
-    - name: Include common vars
-      ansible.builtin.include_vars: "vars/config-common.yml"
-      tags: always
-
-    - name: Include environment specific vars
-      ansible.builtin.include_vars: "vars/config-{{ _env }}.yml"
-      tags: always
-
-    - name: Role System
-      ansible.builtin.include_role:
-        name: system
-      vars:
-        system_firewall:
-          - { port: 80, proto: "tcp" }
-          - { port: 443, proto: "tcp" }
-      tags: system
-
-    - name: Role Keycloack Client
-      ansible.builtin.include_role:
-        name: keycloak-client
-        tasks_from: keycloak-get-token.yml
-      vars:
-        keycloak_regenerate_token: "{{ renew_token | default(false) }}"
-      tags: keycloak
-
-    - name: Role DSW
-      ansible.builtin.include_role:
-        name: dsw
-      vars:
-        dsw_keycloak_token: "{{ keycloak_token_dsw }}"
-      tags: dsw
-
-    - name: Role DSW Sandbox
-      ansible.builtin.include_role:
-        name: dsw
-      vars:
-        dsw_name: dsw-sandbox
-        dsw_dir: /opt/dsw-sandbox
-      tags: dsw-sandbox
-
-    - name: Role Nginx Reverse Proxy
-      ansible.builtin.include_role:
-        name: nginx-reverse-proxy
-      tags: proxy
+- name: Install Reverse Proxy
+  hosts: dswhost
+  become: true
+  roles:
+    - role: mendelu.infra.reverse_proxy
+  tags: proxy

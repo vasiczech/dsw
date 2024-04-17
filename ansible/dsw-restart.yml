@@ -1,0 +1,20 @@
+- name: Restart DSW Application
+  hosts: dswapp
+  become: true
+
+  tasks:
+
+
+    - name: Restart DSW Application
+      ansible.builtin.include_role:
+        name: mendelu.dsw.dsw
+        tasks_from: dsw_restart
+      tags:
+        - dsw
+
+    - name: Restart Reverse Proxy
+      ansible.builtin.import_role:
+        name: mendelu.infra.reverse_proxy
+        tasks_from: reverse_proxy_restart
+      tags:
+        - proxy
