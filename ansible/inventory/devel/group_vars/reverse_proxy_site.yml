@@ -1,0 +1,21 @@
+reverse_proxy_name: reverse-proxy-test
+reverse_proxy_ssl_certificate: "cert-dsw.mendelu.cz.pem"
+reverse_proxy_ssl_certificate_key: "key-dsw.mendelu.cz.pem"
+
+reverse_proxy_site:
+  name: dsw-dev
+  ssl_servers:
+    - name: "dsw.mendelu.cz"
+      locations:
+        - path: /
+          proxy_pass: "http://{{ dsw_client_service_name }}:8080"
+          proxy_websocket: true
+        - path: /wizard-api
+          proxy_pass: "http://{{ dsw_server_service_name }}:3000"
+          proxy_websocket: true
+
+    - name: "api.dsw.mendelu.cz" # TODO: change to dsw-s3.mendelu.cz
+      locations:
+        - path: /
+          proxy_pass: "http://{{ dsw_minio_service_name }}:9000"
+          proxy_websocket: true

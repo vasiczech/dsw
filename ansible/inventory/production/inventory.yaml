@@ -1,4 +1,4 @@
-dswservers:
+dswhost:
   hosts:
     dsw.mendelu.cz:
 

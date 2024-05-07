@@ -3,3 +3,7 @@ dswapp:
     dswapp_dev:
       hosts:
         dsw.mendelu.cz:
+
+reverse_proxy_site:
+  hosts:
+    dsw.mendelu.cz:

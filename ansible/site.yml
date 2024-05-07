@@ -3,6 +3,8 @@
   become: true
   roles:
     - role: mendelu.infra.system
+    - role: mendelu.infra.reverse_proxy
+      tags: [proxy]
     # - role: mendelu.infra.containers
     # - role: mendelu.infra.firewall
     # - role: mendelu.infra.email
@@ -12,13 +14,13 @@
   # all instances, use --limit to limit to specific instance
   hosts: dswapp
   become: true
-  roles:
-    - role: mendelu.dsw.dsw
+  tasks:
+    - name: Install DSW Application
+      ansible.builtin.import_role:
+        name: mendelu.dsw.dsw
+    - name: Set up Reverse Proxy Site
+      ansible.builtin.import_role:
+        name: mendelu.infra.reverse_proxy
+        tasks_from: reverse_proxy_site
+      tags: [proxy]
   tags: dsw
-
-- name: Install Reverse Proxy
-  hosts: dswhost
-  become: true
-  roles:
-    - role: mendelu.infra.reverse_proxy
-  tags: proxy
